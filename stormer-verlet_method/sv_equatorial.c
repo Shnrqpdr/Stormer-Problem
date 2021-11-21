@@ -7,8 +7,12 @@
 
 //LEMBRAR DE TROCAR O NOME DO ARQUIVO DE SAÍDA!
 
-double dVdp(double p, double c20){
-    return (c20*c20)/(M*M)*(1/(p*p*p)) - (c20*3.0*alpha1)/(M)*(1/(p*p*p*p)) + (2*alpha1*alpha1)/(p*p*p*p*p);
+double effectivePotential(double rho, double c20){
+    return (c20*c20)/((2*M*M)*rho*rho) - (alpha1*c20)/(M*rho*rho*rho) + (alpha1*alpha1)/(2*rho*rho*rho*rho);
+}
+
+double dVdp(double rho, double c20){
+    return (c20*c20)/(M*M)*(1/(rho*rho*rho)) - (c20*3.0*alpha1)/(M)*(1/(rho*rho*rho*rho)) + (2*alpha1*alpha1)/(rho*rho*rho*rho*rho);
 }
 
 void polar2cartesian(double *rho, double *drho, double *phi, double dphi, double *x, double *dx, double *y, double *dy, double TAM) {
@@ -22,10 +26,10 @@ void polar2cartesian(double *rho, double *drho, double *phi, double dphi, double
     }
 }
 
-void stormer_verlet_method(double *rho, double *drho, double *phi, double deltaT, double c20, double TAM) {
+void stormer_verlet_method(double *rho, double *drho, double *phi, double *v_eff, double deltaT, double c20, double TAM) {
     
     for(int n = 1; n<=TAM; n++){
-
+        v_eff[n] = effectivePotential(rho[n-1], c20);
         rho[n] = rho[n-1] + deltaT*drho[n-1] + (deltaT*deltaT*dVdp(rho[n-1], c20))/2;
         drho[n] = drho[n-1] + (deltaT/2)*dVdp(rho[n-1], c20) + (deltaT/2)*dVdp(rho[n], c20);
         phi[n] = phi[n-1] + deltaT*((c20/(M*rho[n-1]*rho[n-1])) - (alpha1/(rho[n-1]*rho[n-1]*rho[n-1])));
@@ -33,24 +37,32 @@ void stormer_verlet_method(double *rho, double *drho, double *phi, double deltaT
     }
 }
 
-void getData(char nome[], double *rho, double *drho, double *phi, double dphi, double *x, double *dx, double *y, double *dy, double TAM){
+void getData(char fileParticle[], char filePotential[], double *rho, double *drho, double *phi, double dphi, double *x, double *dx, double *y, double *dy, double *v_eff, double TAM){
 
-    FILE *arquivo;
+    FILE *particle, *effectivePotential;
 
-    arquivo = fopen(nome, "w");
+    particle = fopen(fileParticle, "w");
+    effectivePotential = fopen(filePotential, "w");
 
-    fprintf(arquivo, "n\tx\ty\tz\n");
+    fprintf(particle, "n\tx\ty\tz\n");
+    fprintf(effectivePotential, "n\tv_eff\trho\n");
 
     polar2cartesian(rho, drho, phi, dphi, x, dx, y, dy, TAM);
+    for(int n = 0; n<=TAM; n++){
+        fprintf(particle, "%d %g %g %g\n", n, x[n], y[n], 0.0);
+    }
 
     for(int n = 0; n<=TAM; n++){
-        fprintf(arquivo, "%d %g %g %g\n", n, x[n], y[n], 0.0);
+        fprintf(effectivePotential, "%d %g %g\n", n, v_eff[n], rho[n]);
     }
+
+    fclose(particle);
+    fclose(effectivePotential);
 }
 
 int main(int argc, char *argv[]){
     int TAM;
-    double *rho, *phi, *drho, dphi, *x, *dx, *y, *dy, deltaT = 0.0001, c20;
+    double *rho, *phi, *drho, dphi, *x, *dx, *y, *dy, *v_eff, deltaT = 0.0001, c20;
 
     TAM = atof(argv[1])/deltaT;
 
@@ -61,6 +73,7 @@ int main(int argc, char *argv[]){
     dx = malloc((TAM)*sizeof(double));
     y =  malloc((TAM)*sizeof(double));
     dy = malloc((TAM)*sizeof(double));
+    v_eff = malloc((TAM)*sizeof(double));
 
     rho[0] =  atof(argv[2]);
     drho[0] =  atof(argv[3]);
@@ -68,9 +81,9 @@ int main(int argc, char *argv[]){
     dphi =  atof(argv[5]); // a derivada de phi é constante.
     c20 = dphi*M*(rho[0]*rho[0]) + M*alpha1*(1/rho[0]);
 
-    stormer_verlet_method(rho, drho, phi, deltaT, c20, TAM);
+    stormer_verlet_method(rho, drho, phi, v_eff, deltaT, c20, TAM);
 
-    getData(argv[6], rho, drho, phi, dphi, x, dx, y, dy, TAM);
+    getData(argv[6], argv[7], rho, drho, phi, dphi, x, dx, y, dy, v_eff, TAM);
 
     free(rho);
     free(drho);
