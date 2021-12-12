@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from sys import argv
 
-fileProton1=pd.read_csv("dadosProton3D_1.dat", header = 0, sep='\s+')
-fileProton2=pd.read_csv("dadosProton3D_2.dat", header = 0, sep='\s+')
-fileProton3=pd.read_csv("dadosProton3D_3.dat", header = 0, sep='\s+')
+fileProton1=pd.read_csv("dadosProton3D_1_2.dat", header = 0, sep='\s+')
+fileProton2=pd.read_csv("dadosProton3D_2_2.dat", header = 0, sep='\s+')
+fileProton3=pd.read_csv("dadosProton3D_3_2.dat", header = 0, sep='\s+')
 
 label_1='Proton 1'
 label_2='Proton 2'
@@ -16,9 +16,9 @@ label_3='Proton 3'
 fig = plt.figure()
 
 ax = fig.add_subplot(projection='3d')
-ax.plot(fileProton1['x'], fileProton1['y'], fileProton1['z'], '-', label = label_1)
-ax.plot(fileProton2['x'], fileProton2['y'], fileProton2['z'], '-', label = label_2, color='mediumseagreen')
-ax.plot(fileProton3['x'], fileProton3['y'], fileProton3['z'], '-', label = label_3)
+ax.plot(fileProton1['x'], fileProton1['y'], fileProton1['z'], '-', label = label_1, linewidth=0.65)
+ax.plot(fileProton2['x'], fileProton2['y'], fileProton2['z'], '-', label = label_2, color='mediumseagreen', linewidth=0.65)
+ax.plot(fileProton3['x'], fileProton3['y'], fileProton3['z'], '-', label = label_3, linewidth=0.65, color = '#ff7f0e')
 
 # ESFERA
 N=200
@@ -31,14 +31,15 @@ z = np.outer(np.ones(np.size(u)), np.cos(v))
 ax.plot_surface(x, y, z, linewidth=0.0, cstride=stride, rstride=stride, color='grey')
 #
 
-ax.set_xlim(-6.25, 6.25)
-ax.set_ylim(-6.25, 6.25)
-ax.set_zlim(-3.25, 3.25)
+#ax.view_init(18, -25)
+#ax.set_xlim(-3.90, 3.90)
+#ax.set_ylim(-3.90, 3.90)
+ax.set_zlim(-3.00, 3.00)
 ax.set_xlabel('$x$')
 ax.set_ylabel('$y$')
 ax.set_zlabel('$z$')
 plt.title("Prótons no cinturão de radiação de Van Allen", fontdict=None,)
 plt.legend(loc="upper right",fontsize='small')
-plt.savefig('ProtonsVanAllen3D4.png')
+plt.savefig('ProtonsVanAllen3DProton_2.pdf')
 plt.show()
 

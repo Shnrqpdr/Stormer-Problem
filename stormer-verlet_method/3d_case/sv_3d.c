@@ -14,7 +14,7 @@
 double dHdp(double rho, double z, double c2){
 
     double R = sqrt(rho*rho + z*z);
-    double expression = (c2*c2/(M*rho*rho*rho)) + 3*((M*alpha1*alpha1*rho*rho*rho)/(R*R*R*R*R*R*R*R)) - ((M*alpha1*alpha1*rho)/(R*R*R*R*R*R)) - (3*alpha1*c2*rho)/(R*R*R*R*R);
+    double expression = - (c2*c2/(M*rho*rho*rho)) - 3*((M*alpha1*alpha1*rho*rho*rho)/(R*R*R*R*R*R*R*R)) + ((M*alpha1*alpha1*rho)/(R*R*R*R*R*R)) + (3*alpha1*c2*rho)/(R*R*R*R*R);
 
     return expression;
 }
@@ -22,26 +22,10 @@ double dHdp(double rho, double z, double c2){
 double dHdz(double rho, double z, double c2){
 
     double R = sqrt(rho*rho + z*z);
-    double expression = (3*M*alpha1*alpha1)*((rho*rho*z)/(R*R*R*R*R*R*R*R)) - (3*alpha1*c2)*((z)/(R*R*R*R*R));
+    double expression = - (3*M*alpha1*alpha1)*((rho*rho*z)/(R*R*R*R*R*R*R*R)) + (3*alpha1*c2)*((z)/(R*R*R*R*R));
 
     return expression;
 }
-
-/*double dHdp(double rho, double z, double c2){
-
-    double R = sqrt(rho*rho + z*z);
-    double expression = 1/(M*M)*((c2/rho) - (M*alpha1*rho/(R*R*R)))*(-(c2/(rho*rho)) - (M*alpha1/(R*R*R)) + (3.0/2.0)*(M*alpha1/(R*R*R*R*R)));
-
-    return expression;
-}*/
-
-/*double dHdz(double rho, double z, double c2){
-
-    double R = sqrt(rho*rho + z*z);
-    double expression =  ((3*alpha1*rho*z)/(M*R*R*R*R*R))*((c2/rho) - (M*alpha1*rho/(R*R*R)));
-
-    return expression;
-}*/
 
 void polar2cartesian(double *rho, double *drho, double *phi, double dphi, double *x, double *dx, double *y, double *dy, double TAM) {
     for(int n = 0; n<= TAM; n++){
@@ -55,47 +39,50 @@ void polar2cartesian(double *rho, double *drho, double *phi, double dphi, double
 
 void stormer_verlet_method(double *rho, double *drho, double *phi, double dphi, double *z, double *dz, double *v_eff, double deltaT, double *c2, double TAM) {
 
-    double drho_aux, dz_aux;
+    double momentum_rho_aux, momentum_dz_aux;
     
     for(int n = 1; n<=TAM; n++){
 
         //auxiliares
-        drho_aux = drho[n-1] - deltaT*dHdp(rho[n-1], z[n-1], c2[n-1]);
-        dz_aux = dz[n-1] - deltaT*dHdz(rho[n-1], z[n-1], c2[n-1]);
+        momentum_rho_aux = drho[n-1] - deltaT*dHdp(rho[n-1], z[n-1], c2[0]); // 
+        momentum_dz_aux = dz[n-1] - deltaT*dHdz(rho[n-1], z[n-1], c2[0]);
+        
         //coordenadas
-        rho[n] = rho[n-1] +  deltaT*drho_aux;
-        z[n] = z[n-1] + deltaT*dz_aux;
-        phi[n] = phi[n-1] + deltaT*((c2[n-1])/(M*rho[n-1]*rho[n-1]) - (alpha1/(sqrt(rho[n-1]*rho[n-1] + z[n-1]*z[n-1])*sqrt(rho[n-1]*rho[n-1] + z[n-1]*z[n-1])*sqrt(rho[n-1]*rho[n-1] + z[n-1]*z[n-1]))));
-        c2[n] = M*rho[n]*rho[n]*dphi + (M*alpha1*rho[n]*rho[n])/(sqrt(rho[n]*rho[n] + z[n]*z[n])*sqrt(rho[n]*rho[n] + z[n]*z[n])*sqrt(rho[n]*rho[n] + z[n]*z[n]));
+        rho[n] = rho[n-1] +  deltaT*(momentum_rho_aux/M);
+        z[n] = z[n-1] + deltaT*(momentum_dz_aux/M);
+        phi[n] = phi[n-1] + deltaT*((c2[0])/(M*rho[n-1]*rho[n-1]) - (alpha1/(sqrt(rho[n-1]*rho[n-1] + z[n-1]*z[n-1])*sqrt(rho[n-1]*rho[n-1] + z[n-1]*z[n-1])*sqrt(rho[n-1]*rho[n-1] + z[n-1]*z[n-1]))));
+
+        //constante de movimento
+        //c2[n] = M*rho[n]*rho[n]*dphi + (M*alpha1*rho[n]*rho[n])/(sqrt(rho[n]*rho[n] + z[n]*z[n])*sqrt(rho[n]*rho[n] + z[n]*z[n])*sqrt(rho[n]*rho[n] + z[n]*z[n]));
 
         //velocidades
-        drho[n] = drho_aux - deltaT*dHdp(rho[n], z[n], c2[n]);
-        dz[n] = dz_aux - deltaT*dHdz(rho[n], z[n], c2[n]);
+        drho[n] = momentum_rho_aux - deltaT*dHdp(rho[n], z[n], c2[0]);
+        dz[n] = momentum_dz_aux - deltaT*dHdz(rho[n], z[n], c2[0]);
 
     }
 }
 
-void getData(char fileParticle[], char filePotential[], double *rho, double *drho, double *phi, double dphi, double *x, double *dx, double *y, double *dy, double *z, double *dz, double *v_eff, double TAM){
+void getData(char fileParticle[], char filePhaseSpace[], double *rho, double *drho, double *phi, double dphi, double *x, double *dx, double *y, double *dy, double *z, double *dz, double *v_eff, double TAM){
 
-    FILE *particle, *effectivePotential;
+    FILE *particle, *phaseSpace;
 
     particle = fopen(fileParticle, "w");
-    effectivePotential = fopen(filePotential, "w");
+    phaseSpace = fopen(filePhaseSpace, "w");
 
     fprintf(particle, "n\tx\ty\tz\n");
-    fprintf(effectivePotential, "n\tv_eff\trho\n");
+    fprintf(phaseSpace, "n\trho\tdrho\n");
 
     polar2cartesian(rho, drho, phi, dphi, x, dx, y, dy, TAM);
     for(int n = 0; n<=TAM; n++){
         fprintf(particle, "%d %g %g %g\n", n, x[n], y[n], z[n]);
     }
 
-    /*for(int n = 0; n<=TAM; n++){
-        fprintf(effectivePotential, "%d %g %g\n", n, v_eff[n], rho[n]);
-    }*/
+    for(int n = 0; n<=TAM; n++){
+        fprintf(phaseSpace, "%d %g %g\n", n, rho[n], drho[n]/M);
+    }
 
     fclose(particle);
-    fclose(effectivePotential);
+    fclose(phaseSpace);
 }
 
 int main(int argc, char *argv[]){
@@ -117,13 +104,14 @@ int main(int argc, char *argv[]){
     c2 = malloc((TAM)*sizeof(double));
 
     rho[0] =  atof(argv[2]);
-    drho[0] =  atof(argv[3]);
+    drho[0] =  M*atof(argv[3]); // momento associado à coord rho
     phi[0] =  atof(argv[4]);
     dphi =  atof(argv[5]); // a derivada de phi é constante.
     z[0] = atof(argv[6]);
-    dz[0] = atof(argv[7]);
+    dz[0] = M*atof(argv[7]); // momento associado à coord z
     c2[0] = M*rho[0]*rho[0]*dphi + (M*alpha1*rho[0]*rho[0])/(sqrt(rho[0]*rho[0] + z[0]*z[0])*sqrt(rho[0]*rho[0] + z[0]*z[0])*sqrt(rho[0]*rho[0] + z[0]*z[0]));
 
+    printf("\n%g\n", c2[0]);
     stormer_verlet_method(rho, drho, phi, dphi, z, dz, v_eff, deltaT, c2, TAM);
 
     getData(argv[8], argv[9], rho, drho, phi, dphi, x, dx, y, dy, z, dz, v_eff, TAM);
