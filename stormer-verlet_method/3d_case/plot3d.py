@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from sys import argv
 
-fileProton1=pd.read_csv("dadosProton3D_1_2.dat", header = 0, sep='\s+')
-fileProton2=pd.read_csv("dadosProton3D_2_2.dat", header = 0, sep='\s+')
-fileProton3=pd.read_csv("dadosProton3D_3_2.dat", header = 0, sep='\s+')
+fileProton1=pd.read_csv("dadosProton1Animacao.dat", header = 0, sep='\s+')
+fileProton2=pd.read_csv("dadosProton2Animacao.dat", header = 0, sep='\s+')
+fileProton3=pd.read_csv("dadosProton3Animacao.dat", header = 0, sep='\s+')
 
 label_1='Proton 1'
 label_2='Proton 2'
@@ -40,6 +40,6 @@ ax.set_ylabel('$y$')
 ax.set_zlabel('$z$')
 plt.title("Prótons no cinturão de radiação de Van Allen", fontdict=None,)
 plt.legend(loc="upper right",fontsize='small')
-plt.savefig('ProtonsVanAllen3DProton_2.pdf')
+plt.savefig('Protons3D.pdf')
 plt.show()
 

@@ -87,7 +87,7 @@ void getData(char fileParticle[], char filePhaseSpace[], double *rho, double *dr
 
 int main(int argc, char *argv[]){
     int TAM;
-    double *rho, *phi, *drho, dphi, *x, *dx, *y, *dy, *z, *dz, *v_eff, *c2, deltaT = 0.00002, c20;
+    double *rho, *phi, *drho, dphi, *x, *dx, *y, *dy, *z, *dz, *v_eff, *c2, deltaT = 0.0002, c20;
 
     TAM = atof(argv[1])/deltaT;
 

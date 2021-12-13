@@ -9,9 +9,9 @@ import pandas as pd
 #plt.rcParams['animation.ffmpeg_path'] ='C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe' PRO WINDOWS
 
 
-df_q3=pd.read_csv("dadosProton3D_1_2.dat", header = 0, sep='\s+')
-df_q4=pd.read_csv("dadosProton3D_2_2.dat", header = 0, sep='\s+')
-df_q5=pd.read_csv("dadosProton3D_3_2.dat", header = 0, sep='\s+')
+df_q3=pd.read_csv("dadosProton1Animacao.dat", header = 0, sep='\s+')
+df_q4=pd.read_csv("dadosProton2Animacao.dat", header = 0, sep='\s+')
+df_q5=pd.read_csv("dadosProton3Animacao.dat", header = 0, sep='\s+')
 
 x1 = df_q3['x']
 y1 = df_q3['y']
@@ -31,7 +31,7 @@ ax = fig.add_subplot(projection='3d')
 
 ax.set_xlim(-4.0, 4.0)
 ax.set_ylim(-4.0, 4.0)
-ax.set_zlim(-3.25, 3.25)
+ax.set_zlim(-3.00, 3.00)
 
 N=200
 stride=2
@@ -53,7 +53,7 @@ plt.title(r'Prótons no cinturão de radiação de Van Allen')
 plt.close()
     
 def init():
-    return 5
+    return 5000
 
 x1_copy = x1[:].copy()
 y1_copy = y1[:].copy()
@@ -83,5 +83,5 @@ def anim(i):
     bolinha3[0]=ax.scatter(x3_copy[i],y3_copy[i], z3_copy[i], color="tab:cyan",marker="o",s=5, label="Particle")
     return traco1, traco2, traco3, bolinha1, bolinha2, bolinha3
     
-anim = FuncAnimation(fig, anim, 100000, interval=100, blit=False)
-anim.save('stormerCasoTridimensional_2.mp4', fps=60, extra_args=['-vcodec', 'libx264'])
+anim = FuncAnimation(fig, anim, 10000, interval=100, blit=False)
+anim.save('stormerCasoTridimensional_4.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
