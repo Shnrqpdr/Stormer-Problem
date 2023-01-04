@@ -37,5 +37,5 @@ ax.plot(array_x1, array_y1, '-')
     
 plt.grid(linestyle='-', linewidth=0.7)
 # plt.legend(loc="upper right",ncol=3,fontsize='small')
-plt.title("Potencial Efetivo para o caso do limite equatorial", fontdict=None)
+plt.title("Effective potential for equatorial case", fontdict=None)
 plt.savefig("Potencial_Efetivo_equatorial.png") 

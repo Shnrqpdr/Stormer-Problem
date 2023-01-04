@@ -41,7 +41,7 @@ plt.text(-0.45, -0.15, 'Terra', fontsize = 15) #-0.45 e -0.15 fontsize = 15 é o
 # plt.xscale('log')
 
 
-plt.title("Prótons no cinturão de radiação de Van Allen", fontdict=None,)
+plt.title("Particles under magnetical force influence", fontdict=None,)
 plt.legend(loc="upper right",ncol=3,fontsize='small')
 
 plt.savefig('plot3DPlano.pdf')
