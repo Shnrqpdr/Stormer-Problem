@@ -1,4 +1,5 @@
 #!/bin/bash
+#        rho0 drho0 phi0 dphi z0 dz0        
 ./sv3d 2 3.0 5.0 0.0 10.0 0.5 0.0 dadosProton1Animacao.dat phaseSpaceP1_2.dat
 ./sv3d 2 3.0 10.0 3.14 10.0 0.5 0.0 dadosProton2Animacao.dat phaseSpaceP2_2.dat
 ./sv3d 2 3.0 25.0 5.23 10.0 0.5 0.0 dadosProton3Animacao.dat phaseSpaceP3_2.dat
