@@ -41,10 +41,11 @@ void spherical2cartesian(double *theta,
 
 double dHd_theta(double theta, double dtheta, double phi, double dphi)
 {
+    /* eta = p_phi + k sin^2(theta) (article eq. 12-13); dphi = p_phi (canonical momentum) */
+    double sin2 = sin(theta) * sin(theta);
+    double eta = dphi + k * sin2;
 
-    double Lz = M * R * R * dphi * sin(theta) * sin(theta);
-
-    double expression = -(Lz * Lz) / (M * R * R * sin(theta) * sin(theta) * tan(theta)) + (Lz * k * sin(2 * theta)) / (M * R * R * sin(theta) * sin(theta));
+    double expression = -(eta * eta) / (M * R * R * sin2 * tan(theta)) + (eta * k * sin(2 * theta)) / (M * R * R * sin2);
 
     return expression;
 }
@@ -67,18 +68,20 @@ double dHd_phi(double theta, double dtheta, double phi, double dphi)
 
 double dHd_dphi(double theta, double dtheta, double phi, double dphi)
 {
+    /* phi_dot = eta/(M R^2 sin^2 theta); eta = p_phi + k sin^2(theta) */
+    double sin2 = sin(theta) * sin(theta);
+    double eta = dphi + k * sin2;
 
-    double Lz = M * R * R * dphi * sin(theta) * sin(theta);
-
-    double expression = (Lz) / (M * R * R * sin(theta) * sin(theta));
+    double expression = eta / (M * R * R * sin2);
 
     return expression;
 }
 
-void stormer_verlet_method(double *theta, double *dtheta, double *phi, double *dphi, double deltaT, double TAM)
+void stormer_verlet_method(double *theta, double *dtheta, double *phi, double *dphi, double deltaT, int TAM)
 {
 
     double momentum_theta_aux, momentum_phi_aux;
+    int report_interval = (TAM >= 20) ? (TAM / 20) : 1; /* atualiza ~20 vezes */
 
     for (int n = 1; n <= TAM; n++)
     {
@@ -93,10 +96,17 @@ void stormer_verlet_method(double *theta, double *dtheta, double *phi, double *d
 
         // constante de movimento
 
-        // velocidades
-        dtheta[n] = momentum_theta_aux - deltaT * dHd_theta(theta[n], dtheta[n - 1], phi[n], dphi[n - 1]);
-        dphi[n] = momentum_phi_aux - deltaT * dHd_phi(theta[n], dtheta[n - 1], phi[n], dphi[n - 1]);
+        /* atualização final dos momentos (usar momento no meio do passo para consistência symplectic) */
+        dtheta[n] = momentum_theta_aux - deltaT * dHd_theta(theta[n], momentum_theta_aux, phi[n], momentum_phi_aux);
+        dphi[n] = momentum_phi_aux - deltaT * dHd_phi(theta[n], momentum_theta_aux, phi[n], momentum_phi_aux);
+
+        if (n % report_interval == 0 || n == TAM)
+        {
+            fprintf(stderr, "\rPassos restantes: %d / %d", TAM - n, TAM);
+            fflush(stderr);
+        }
     }
+    fprintf(stderr, "\n");
 }
 
 void getData(char fileParticle[], char filePhaseSpace[], double *theta, double *dtheta, double *phi, double *dphi, double *x, double *dx, double *y, double *dy, double *z, double *dz, double TAM)
@@ -125,7 +135,7 @@ int main(int argc, char *argv[])
     int TAM;
     double *theta, *phi, *dtheta, *dphi, *x, *dx, *y, *dy, *z, *dz, deltaT = 0.0002;
 
-    TAM = atof(argv[1]) / deltaT;
+    TAM = (int)(atof(argv[1]) / deltaT);
 
     theta = malloc((TAM) * sizeof(double));
     dtheta = malloc((TAM) * sizeof(double));
