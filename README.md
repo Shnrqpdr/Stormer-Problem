@@ -24,9 +24,9 @@ As equações de movimento são integradas com o **método de Stormer-Verlet**, 
 
 | Caminho | Descrição |
 |--------|------------|
-| **`stormer-verlet_method/constraint_case/sphere/`** | Partícula **confinada à superfície de uma esfera** (R fixo), com dipolo no centro. Baseado no problema restrito de Störmer (Cortés & Cortés Poza, *Eur. J. Phys.* 2015). Integração das equações de Hamilton em coordenadas esféricas (θ, φ) com momento canônico p_φ constante. |
-| **`stormer-verlet_method/no_constraint_case/3d_case/`** | Caso **tridimensional completo**: movimento em (ρ, z, φ) no campo do dipolo (sem restrição a superfície). Solver em C (`sv_3d.c`) com Stormer-Verlet; scripts Python para trajetórias 3D, projeções 2D e espaço de fases. |
-| **`stormer-verlet_method/no_constraint_case/equatorial_case/`** | Caso **equatorial** (órbita no plano z = 0): potencial efetivo e integração em (ρ, φ). Solver em C (`sv_equatorial.c`); scripts para potencial efetivo e gráficos. |
+| **`simulation/constraint_case/sphere/`** | Partícula **confinada à superfície de uma esfera** (R fixo), com dipolo no centro. Baseado no problema restrito de Störmer (Cortés & Cortés Poza, *Eur. J. Phys.* 2015). Integração das equações de Hamilton em coordenadas esféricas (θ, φ) com momento canônico p_φ constante. |
+| **`simulation/no_constraint_case/3d_case/`** | Caso **tridimensional completo**: movimento em (ρ, z, φ) no campo do dipolo (sem restrição a superfície). Solver em C (`sv_3d.c`) com Stormer-Verlet; scripts Python para trajetórias 3D, projeções 2D e espaço de fases. |
+| **`simulation/no_constraint_case/equatorial_case/`** | Caso **equatorial** (órbita no plano z = 0): potencial efetivo e integração em (ρ, φ). Solver em C (`sv_equatorial.c`); scripts para potencial efetivo e gráficos. |
 | **`Saletan_example/`** | Exemplo comparativo baseado em Saletan; implementação e visualização em Python. |
 
 ### Resumo dos solvers em C
